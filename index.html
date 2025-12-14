@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тәуелсіздік күні - Интерактивті Сабақ</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&family=Orbitron:wght@500;700;900&display=swap');
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #050a14; /* Very dark blue background */
+            color: white;
+            overflow-x: hidden;
+        }
+
+        .holo-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Background Map - Natural Colors */
+        .bg-map {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 85vw;
+            max-width: 1100px;
+            opacity: 1;
+            z-index: 0;
+            pointer-events: none;
+            animation: floatMap 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatMap {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.02); }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020617;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fbbf24;
+            border-radius: 4px;
+        }
+
+        /* Sci-Fi Hologram Tablet Style with Ornament Glow */
+        .hologram-tablet {
+            background: rgba(1, 20, 40, 0.9);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.1), inset 0 0 40px rgba(0, 10, 30, 0.9);
+            backdrop-filter: blur(15px);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hologram-tablet:active {
+            transform: scale(0.98);
+        }
+
+        /* Ornament Corner Glow Animation */
+        @keyframes ornamentPulse {
+            0% { filter: drop-shadow(0 0 2px #ffd700); opacity: 0.8; }
+            100% { filter: drop-shadow(0 0 8px #ffd700); opacity: 1; }
+        }
+
+        .ornament-corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            pointer-events: none;
+            z-index: 20;
+            animation: ornamentPulse 3s infinite alternate;
+        }
+        
+        .ornament-corner path {
+            fill: none;
+            stroke: #ffd700;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .tl { top: 4px; left: 4px; transform: rotate(0deg); }
+        .tr { top: 4px; right: 4px; transform: rotate(90deg); }
+        .br { bottom: 4px; right: 4px; transform: rotate(180deg); }
+        .bl { bottom: 4px; left: 4px; transform: rotate(270deg); }
+
+        /* Main Title Gradient */
+        .main-title-gradient {
+            background: linear-gradient(180deg, #FFD700 0%, #FFD700 40%, #003366 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 0px rgba(0,0,0,0.5));
+            line-height: 1.1;
+        }
+
+        /* Yellow Header Text */
+        .text-header-yellow {
+            color: #FFD700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* News Ticker */
+        .news-ticker-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #000;
+            border-top: 3px solid #ffd700;
+            border-bottom: 3px solid #0056b3;
+            z-index: 50;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .news-ticker-text {
+            white-space: nowrap;
+            animation: ticker 40s linear infinite;
+            font-weight: 800;
+            color: #fff;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            text-shadow: 2px 2px 0 #000;
+        }
+        
+        .news-ticker-text span {
+            color: #ffd700;
+            margin: 0 10px;
+        }
+
+        @keyframes ticker {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* Scanner Line */
+        .scanner-line {
+            height: 4px;
+            width: 100%;
+            background: #00ff00;
+            position: absolute;
+            top: 0;
+            animation: scan 1.5s linear infinite;
+            box-shadow: 0 0 15px #00ff00;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+        
+        /* 3D Card Flip */
+        .perspective { perspective: 1000px; }
+        .style-preserve-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+
+        /* Mobile Adjustments for Proportion */
+        @media (max-width: 768px) {
+            .bg-map { width: 95vw; opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Жұмсақ, әдемі дыбыстар
+        const playSound = (type = 'click') => {
+            let audioUrl;
+            
+            switch (type) {
+                case 'scan':
+                    // Scan: Жұмсақ, құлаққа жағымды гуіл
+                    audioUrl = 'https://assets.mixkit.co/active_storage/sfx/2177/2177-preview.mp3'; 
+                    break;
+                case 'correct':
+                case 'success':
+                    // Success: Өте әдемі қоңырау/сиқырлы дыбыс
+                    audioUrl = 'https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3';
+                    break;
+                case 'wrong':
+                    // Wrong: Қатты емес қате дыбысы
+                    audioUrl = 'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3';
+                    break;
+                case 'click':
+                default:
+                    // Click: Жұмсақ, футуристік шыны тықылдауы (soft glass tap)
+                    audioUrl = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
+                    break;
+            }
+            
+            const audio = new Audio(audioUrl);
+            audio.volume = 0.4; 
+            audio.play().catch(e => console.log("Audio prevented:", e));
+        };
+
+        const OyuCorner = ({ className }) => (
+            <svg className={`ornament-corner ${className}`} viewBox="0 0 50 50" fill="none">
+                <path d="M2,50 V20 A18,18 0 0 1 20,2 H50" />
+                <path d="M10,50 V25 A15,15 0 0 1 25,10 H50" opacity="0.5" />
+                <circle cx="20" cy="20" r="3" fill="#ffd700" />
+            </svg>
+        );
+
+        const HoloTablet = ({ children, className = "", onClick, noPadding = false }) => (
+            <div 
+                onClick={(e) => {
+                    if(onClick) {
+                        playSound();
+                        onClick(e);
+                    }
+                }}
+                className={`hologram-tablet relative ${className}`}
+            >
+                <OyuCorner className="tl" />
+                <OyuCorner className="tr" />
+                <OyuCorner className="br" />
+                <OyuCorner className="bl" />
+                <div className={`relative z-10 h-full ${noPadding ? '' : 'p-6 md:p-8'}`}>
+                    {children}
+                </div>
+            </div>
+        );
+
+        const KazakhstanMap = () => (
+            <div className="bg-map">
+                <img 
+                    src="https://m.0088.kz/image/catalog/Plakat/14003023_1.jpg" 
+                    alt="Kazakhstan Map Natural" 
+                    className="w-full h-auto object-contain drop-shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+                />
+            </div>
+        );
+
+        // --- DATA SECTION ---
+
+        const timelineData = [
+            { year: "1991", title: "Тәуелсіздік Бастауы", desc: "16 желтоқсанда «Қазақстан Республикасының мемлекеттік тәуелсіздігі туралы» Конституциялық заң қабылданды." },
+            { year: "1992", title: "Мемлекеттік Рәміздер", desc: "4 маусымда Ту, Елтаңба және Әнұран бекітілді. Біріккен Ұлттар Ұйымына (БҰҰ) мүше болдық." },
+            { year: "1993", title: "Ұлттық Валюта", desc: "15 қарашада Қазақстанның төл валютасы – Теңге айналымға енгізілді. Экономикалық дербестік." },
+            { year: "1995", title: "Ата Заң", desc: "30 тамызда жалпыхалықтық референдумда Қазақстан Республикасының Конституциясы қабылданды." },
+            { year: "1997", title: "Елорданың Ауысуы", desc: "Ел астанасы Алматыдан Ақмолаға (қазіргі Астана) көшірілді. Жаңа геосаяси қадам." },
+            { year: "2017", title: "EXPO-2017", desc: "Астанада халықаралық көрме өтті. Қазақстан жасыл энергияны дамытуға үлес қосты." },
+        ];
+
+        const valuesData = [
+            { 
+                month: "Қыркүйек", 
+                value: "Еңбекқорлық және кәсіби біліктілік", 
+                quotes: [
+                    "«Білім - қымбат қазына, қанағат тұтпа азына»",
+                    "«Жанұям - қорғаным, ата-анам – тірегім»",
+                    "«Ақырын жүріп анық бас, еңбегің кетпес далаға!»",
+                    "«Еңбек - жай ғана қызмет емес, адам болмысының айнасы»"
+                ]
+            },
+            { 
+                month: "Қазан", 
+                value: "Тәуелсіздік және Отаншылдық", 
+                quotes: [
+                    "«Ел-жұртымның бақыты аталатын, сөнбесін мәңгі сенің, Отан, атың»",
+                    "«Туған жердей жер болмас, туған елдей ел болмас!»",
+                    "«Отанды сүю - отбасынан басталады!»",
+                    "«Отаным - алтын бесігім!»"
+                ]
+            },
+            { 
+                month: "Қараша", 
+                value: "Әділдік және жауапкершілік", 
+                quotes: [
+                    "«Әділдік пен жауапкершілік - біртұтас ұғым»",
+                    "«Тура биде туған жоқ»",
+                    "«Жауапкершілік - адамгершілік қасиеттің көрінісі»",
+                    "«Әділетте берік болсаң аяғың таймайды!»"
+                ]
+            },
+            { 
+                month: "Желтоқсан", 
+                value: "Бірлік және ынтымақ", 
+                quotes: [
+                    "«Бірлігі күшті ел озады»",
+                    "«Ынтымақ жүрген жерде ырыс бірге жүреді»",
+                    "«Бірлік болмай тірлік болмас»",
+                    "«Ынтымақ - бұзылмайтын қорған»"
+                ]
+            },
+            { 
+                month: "Қаңтар", 
+                value: "Заң және тәртіп", 
+                quotes: [
+                    "«Талап бар жерде тәртіп бар»",
+                    "«Тәртіп - тәрбие бастауы»",
+                    "«Әділ заң - аспан тірегі»",
+                    "«Тәртіпсіз ел болмайды»"
+                ]
+            },
+            { 
+                month: "Ақпан", 
+                value: "Жасампаздық және жаңашылдық", 
+                quotes: [
+                    "«Жасампаздық - бәрімізге өнеге»",
+                    "«Шығармашыл бала - ойлы бала»",
+                    "«Өнерлі бала өрге жүзер»",
+                    "«Жаңашылдық - заман талабы»"
+                ]
+            },
+            { 
+                month: "Наурыз", 
+                value: "Тәуелсіздік және Отаншылдық", 
+                quotes: [
+                    "«Патриотизм - ата-анаңды құрметтей білуің»",
+                    "«Тәуелсіздік - тәтті сөз ғана емес, ұлттық жауапкершілік»",
+                    "«Ар-намыс қана тәуелсіздікке тірек бола алады»",
+                    "«Патриотизмі жоқ халық жаны жоқ тәнмен тең»"
+                ]
+            },
+            { 
+                month: "Сәуір", 
+                value: "Еңбекқорлық және кәсіби біліктілік", 
+                quotes: [
+                    "«Еңбек - қуаныш, жалқаулық - айырылмас азап.»",
+                    "«Көп еңбек еткенге бақыт басын иеді.»",
+                    "«Болашағы зор мамандықтар жоқ, тек болашағы зор мамандар бар»",
+                    "«Білікті білім жинап кәсіп етер, білімнің дәмін татып өсіп өнер»"
+                ]
+            },
+            { 
+                month: "Мамыр", 
+                value: "Бірлік және Ынтымақ", 
+                quotes: [
+                    "«Күннің көзі ортақ, жақсының сөзі ортақ»",
+                    "«Бірлік жоқ болса ұйым жоқ, ұйым жоқ болса күнің жоқ»",
+                    "«Жалғанда ойлап тұрсаң бірлік керек, бірлікті ойлау үшін тірлік керек»",
+                    "«Тату елге тыныштық пен тоқшылық нәсіп.»"
+                ]
+            }
+        ];
+
+        // 16 Questions with mixed answer positions
+        const quizData = [
+            { question: "Қазақстан Республикасының Тәуелсіздік күні қашан?", options: ["25 қазан", "16 желтоқсан", "30 тамыз"], answer: 1 }, 
+            { question: "Қазақстан БҰҰ-ға қашан мүше болды?", options: ["1992 ж. 2 наурыз", "1991 ж. 16 желтоқсан", "1995 ж. 30 тамыз"], answer: 0 }, 
+            { question: "Төл валютамыз - теңге қай жылы енгізілді?", options: ["1991", "1995", "1993"], answer: 2 }, 
+            { question: "Мемлекеттік рәміздер қашан қабылданды?", options: ["1992 маусым", "1991 желтоқсан", "1995 тамыз"], answer: 0 }, 
+            { question: "Ата Заңымыз қашан қабылданды?", options: ["1993 ж.", "1995 ж. 30 тамыз", "1991 ж."], answer: 1 }, 
+            { question: "Семей полигоны қашан жабылды?", options: ["1991 ж. 29 тамыз", "1990 ж.", "1992 ж."], answer: 0 }, 
+            { question: "Астана елорда болып қай жылы бекітілді?", options: ["1991 ж.", "2000 ж.", "1997 ж."], answer: 2 }, 
+            { question: "Тұңғыш ғарышкер кім?", options: ["Талғат Мұсабаев", "Тоқтар Әубәкіров", "Айдын Айымбетов"], answer: 1 }, 
+            { question: "2017 жылы Астанада өткен халықаралық көрме?", options: ["Азияда", "Олимпиада", "EXPO-2017"], answer: 2 }, 
+            { question: "«Алтын адам» табылған жер?", options: ["Есік қорғаны", "Отырар", "Түркістан"], answer: 0 }, 
+            { question: "Тәуелсіздік туралы Декларация қашан қабылданды?", options: ["1990 ж. 25 қазан", "1991 ж. 16 желтоқсан", "1986 ж. 16 желтоқсан"], answer: 0 }, 
+            { question: "Қазақстан халқы Ассамблеясы құрылған жыл?", options: ["1991", "1995", "2000"], answer: 1 }, 
+            { question: "2011 жылы елімізде өткен ірі спорттық шара?", options: ["VII Қысқы Азия ойындары", "Жазғы Олимпиада", "Футбол чемпионаты"], answer: 0 }, 
+            { question: "Елтаңба авторлары?", options: ["Ш.Қалдаяқов", "Ж.Мәлібеков пен Ш.Уәлиханов", "Ш.Ниязбеков"], answer: 1 }, 
+            { question: "Әнұранның әнін жазған сазгер?", options: ["Шәмші Қалдаяқов", "Нұрғиса Тілендиев", "Ахмет Жұбанов"], answer: 0 }, 
+            { question: "Тәуелсіздік монументі қай қалада орналасқан?", options: ["Астана", "Түркістан", "Алматы"], answer: 2 }, 
+        ];
+
+        const chronologyEvents = [
+            { id: 1, year: 1991, text: "Тәуелсіздік алу" },
+            { id: 2, year: 1992, text: "Рәміздерді қабылдау" },
+            { id: 3, year: 1993, text: "Теңгені енгізу" },
+            { id: 4, year: 1995, text: "Конституцияны қабылдау" },
+            { id: 5, year: 1997, text: "Астананы көшіру" }
+        ];
+
+        // --- COMPONENTS ---
+
+        const LockScreen = ({ onUnlock }) => (
+            <div className="flex flex-col items-center justify-center h-screen bg-black z-50 relative overflow-hidden">
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20 animate-pulse"></div>
+                
+                <div className="relative z-10 mb-12 text-center animate-bounce-slow">
+                     <h1 className="text-4xl md:text-6xl text-header-yellow font-black tracking-widest holo-font uppercase drop-shadow-[0_0_15px_rgba(255,215,0,0.8)]">
+                        Тарихқа Ену
+                    </h1>
+                    <div className="h-1 w-32 bg-cyan-400 mx-auto mt-4 rounded-full shadow-[0_0_10px_#00d2ff]"></div>
+                </div>
+
+                <p className="text-cyan-300 mb-12 text-center px-4 font-bold text-lg tracking-wider">Жүйеге кіру үшін Қазақстан картасы бейнеленген "Кілтті" іске қосыңыз</p>
+                
+                <button 
+                    onClick={() => { playSound('scan'); onUnlock(); }}
+                    className="group relative w-36 h-36 md:w-52 md:h-52 rounded-full border-4 border-cyan-500 flex items-center justify-center bg-gray-900 shadow-[0_0_50px_rgba(0,210,255,0.5)] hover:scale-105 transition-transform duration-500 hover:shadow-[0_0_80px_#ffd700]"
+                >
+                    <i className="fas fa-fingerprint text-7xl text-cyan-400 group-hover:text-yellow-400 transition-colors duration-300"></i>
+                    <div className="absolute inset-0 rounded-full border-t-4 border-yellow-400 animate-spin"></div>
+                </button>
+            </div>
+        );
+
+        const IntroSlide = ({ onNext }) => (
+            <div className="flex flex-col items-center justify-center h-full text-center px-4 relative z-10 py-10">
+                <div className="bg-black/70 p-8 md:p-12 rounded-[2rem] backdrop-blur-md border border-yellow-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)] max-w-5xl">
+                    <h1 className="text-5xl md:text-8xl font-black main-title-gradient mb-6 uppercase tracking-tight" style={{fontFamily: 'Orbitron'}}>
+                        16 Желтоқсан
+                    </h1>
+                    <h2 className="text-3xl md:text-5xl text-white font-bold tracking-widest mb-10 uppercase drop-shadow-lg" style={{textShadow: '0 0 10px #003366'}}>
+                        Тәуелсіздік Күні
+                    </h2>
+                    
+                    <HoloTablet className="max-w-4xl mx-auto mb-10">
+                        <p className="text-xl md:text-2xl leading-relaxed text-white font-semibold">
+                            Бұл күн – ата-бабамыздың аңсаған арманының орындалған күні. 
+                            Бұл күн – азаттық пен еркіндіктің мерекесі. 
+                            <span className="text-header-yellow block mt-4 font-black">Бүгін біз тарих қойнауына үңіліп, болашаққа бағдар жасаймыз.</span>
+                        </p>
+                    </HoloTablet>
+
+                    <button 
+                        onClick={() => { playSound(); onNext(); }}
+                        className="px-12 py-5 bg-gradient-to-r from-blue-900 to-blue-700 border-2 border-cyan-400 hover:border-yellow-400 text-white font-black text-2xl rounded-xl shadow-[0_0_20px_rgba(0,100,255,0.6)] hover:shadow-[0_0_40px_#ffd700] transition-all transform hover:-translate-y-1 active:scale-95"
+                    >
+                        БАСТАУ <i className="fas fa-play ml-3"></i>
+                    </button>
+                </div>
+            </div>
+        );
+
+        const Timeline = () => {
+            const [activeYear, setActiveYear] = useState(null);
+
+            const handleYearClick = (yearData) => {
+                setActiveYear(yearData);
+                playSound();
+            };
+
+            return (
+                <div className="flex flex-col h-full py-8 relative z-10 max-w-7xl mx-auto">
+                    <div className="text-center mb-8">
+                        <h2 className="text-4xl font-black text-header-yellow uppercase tracking-widest drop-shadow-md bg-black/60 inline-block px-8 py-3 rounded-lg border border-yellow-500/30">Тәуелсіздік Шежіресі</h2>
+                    </div>
+                    
+                    <div className="flex-1 overflow-y-auto px-4 pb-20 custom-scroll">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+                            {timelineData.map((item, idx) => (
+                                <HoloTablet 
+                                     key={idx} 
+                                     onClick={() => handleYearClick(item)}
+                                     className="cursor-pointer group flex flex-col items-center justify-center h-56 hover:bg-blue-900/30"
+                                >
+                                    <h3 className="text-6xl font-black text-white group-hover:text-header-yellow transition-colors duration-300" style={{fontFamily: 'Orbitron', textShadow: '3px 3px 0 #000'}}>
+                                        {item.year}
+                                    </h3>
+                                    <div className="h-1 w-16 bg-cyan-400 mt-4 mb-4 group-hover:w-32 group-hover:bg-yellow-400 transition-all duration-500 rounded-full"></div>
+                                    <p className="text-cyan-300 font-bold uppercase tracking-widest text-sm group-hover:text-white">Толығырақ...</p>
+                                </HoloTablet>
+                            ))}
+                        </div>
+                    </div>
+
+                    {activeYear && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4" onClick={() => setActiveYear(null)}>
+                            <HoloTablet className="max-w-2xl w-full border-2 border-yellow-500 shadow-[0_0_60px_rgba(255,215,0,0.15)] bg-black/95">
+                                <button className="absolute top-4 right-4 text-white hover:text-red-500 text-4xl font-bold transition-colors" onClick={(e) => { e.stopPropagation(); playSound(); setActiveYear(null); }}>&times;</button>
+                                <div className="p-4">
+                                    <h2 className="text-6xl font-black text-header-yellow mb-4" style={{fontFamily: 'Orbitron'}}>{activeYear.year}</h2>
+                                    <h3 className="text-3xl text-white font-bold mb-6 border-b-2 border-cyan-500 pb-3 inline-block">{activeYear.title}</h3>
+                                    <p className="text-xl leading-relaxed text-gray-100 font-medium">{activeYear.desc}</p>
+                                </div>
+                            </HoloTablet>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        const ValuesGrid = () => {
+            const [flipped, setFlipped] = useState({});
+
+            const handleFlip = (idx) => {
+                playSound();
+                setFlipped(prev => ({...prev, [idx]: !prev[idx]}));
+            };
+
+            return (
+                <div className="h-full py-8 px-4 overflow-y-auto relative z-10 max-w-7xl mx-auto">
+                    <div className="text-center mb-10 bg-black/60 py-5 rounded-2xl backdrop-blur-sm border-y border-yellow-500/50 mx-auto max-w-3xl shadow-lg">
+                        <h2 className="text-4xl font-black text-header-yellow mb-2 uppercase drop-shadow-lg">Біртұтас Тәрбие</h2>
+                        <p className="text-xl text-white font-bold uppercase tracking-wider">«Адал Азамат» Құндылықтары</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-24">
+                        {valuesData.map((item, idx) => (
+                            <div key={idx} onClick={() => handleFlip(idx)} className="h-72 perspective cursor-pointer group">
+                                <div className={`relative w-full h-full transition-transform duration-700 transform style-preserve-3d ${flipped[idx] ? 'rotate-y-180' : ''}`} style={{transformStyle: 'preserve-3d', transform: flipped[idx] ? 'rotateY(180deg)' : 'rotateY(0deg)'}}>
+                                    {/* Front */}
+                                    <div className="absolute inset-0 backface-hidden" style={{backfaceVisibility: 'hidden'}}>
+                                        <HoloTablet className="h-full flex items-center justify-center flex-col hover:border-yellow-400 transition-colors">
+                                            <h3 className="text-3xl font-black uppercase tracking-wider text-center px-4 leading-snug" style={{color: '#fff', textShadow: '0 0 15px rgba(0,210,255,0.8)'}}>{item.month}</h3>
+                                            <div className="mt-6 px-4 py-1 rounded-full bg-cyan-900/50 border border-cyan-500/30 text-yellow-400 text-xs font-bold uppercase animate-pulse">Басыңыз</div>
+                                        </HoloTablet>
+                                    </div>
+                                    {/* Back */}
+                                    <div className="absolute inset-0 backface-hidden" style={{backfaceVisibility: 'hidden', transform: 'rotateY(180deg)'}}>
+                                        <HoloTablet className="h-full bg-black/90 border-yellow-500 shadow-[0_0_30px_rgba(255,215,0,0.15)] flex flex-col">
+                                            <h4 className="text-lg font-black text-header-yellow mb-4 text-center uppercase border-b border-white/20 pb-2 leading-tight min-h-[3rem] flex items-center justify-center">{item.value}</h4>
+                                            <div className="flex-1 flex flex-col justify-center gap-2 text-sm text-white font-medium overflow-y-auto">
+                                                {item.quotes.map((q, i) => (
+                                                    <div key={i} className="flex gap-2 items-start bg-blue-900/20 p-1 rounded">
+                                                        <span className="text-cyan-400 font-bold shrink-0">{i+1}.</span>
+                                                        <span className="italic leading-tight">{q}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </HoloTablet>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const ChronologyGame = ({ onBack }) => {
+            const [shuffledEvents, setShuffledEvents] = useState([]);
+            const [currentStep, setCurrentStep] = useState(0);
+            const [message, setMessage] = useState("Оқиғаларды уақыт ретімен (ертеден кеш кезеңге) таңдаңыз");
+            const [finished, setFinished] = useState(false);
+            const [wrong, setWrong] = useState(false);
+
+            useEffect(() => {
+                const shuffled = [...chronologyEvents].sort(() => Math.random() - 0.5);
+                setShuffledEvents(shuffled);
+            }, []);
+
+            const handleEventClick = (event) => {
+                if (finished) return;
+                playSound();
+                const correctEvent = chronologyEvents[currentStep];
+                if (event.id === correctEvent.id) {
+                    const nextStep = currentStep + 1;
+                    setCurrentStep(nextStep);
+                    setWrong(false);
+                    if (nextStep === chronologyEvents.length) {
+                        setFinished(true);
+                        setMessage("Жарайсыз! Барлық оқиғалар дұрыс табылды!");
+                        playSound('success'); // Win sound
+                    } else {
+                        setMessage("Дұрыс! Келесі оқиғаны табыңыз.");
+                    }
+                } else {
+                    setWrong(true);
+                    setMessage("Қате! Бұл оқиға кейінірек немесе ертерек болған.");
+                    setTimeout(() => setWrong(false), 1000);
+                }
+            };
+
+            return (
+                <div className="flex flex-col items-center h-full px-4 py-8 relative z-10 max-w-6xl mx-auto">
+                    <div className="w-full flex justify-between items-center mb-8">
+                        <button onClick={() => { playSound(); onBack(); }} className="text-white bg-blue-900/80 px-6 py-2 rounded-lg hover:bg-blue-700 font-bold border border-blue-400 transition-all"><i className="fas fa-arrow-left mr-2"></i>Артқа</button>
+                        <h2 className="text-3xl font-black text-header-yellow uppercase drop-shadow-md">Хронология</h2>
+                    </div>
+                    
+                    <div className={`text-center mb-8 p-4 rounded-xl border-2 font-bold text-xl backdrop-blur-md shadow-lg transition-colors duration-300 w-full max-w-3xl ${wrong ? 'bg-red-900/80 border-red-500 text-white' : finished ? 'bg-green-900/80 border-green-400 text-white' : 'bg-blue-900/60 border-cyan-400 text-white'}`}>
+                        {message}
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mb-8">
+                        {shuffledEvents.map((event) => {
+                            const isSelected = chronologyEvents.findIndex(e => e.id === event.id) < currentStep;
+                            if (isSelected) return null; 
+
+                            return (
+                                <HoloTablet
+                                    key={event.id}
+                                    onClick={() => handleEventClick(event)}
+                                    className="cursor-pointer text-left group hover:bg-blue-900/50 flex flex-col justify-center min-h-[120px]"
+                                >
+                                    <div className="text-xl font-bold text-white group-hover:text-yellow-400 transition-colors">{event.text}</div>
+                                    <div className="text-sm text-cyan-400 mt-2 font-mono flex items-center gap-2">
+                                        <span className="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></span> ???? жыл
+                                    </div>
+                                </HoloTablet>
+                            );
+                        })}
+                    </div>
+
+                    <div className="w-full flex flex-wrap gap-4 justify-center">
+                        {chronologyEvents.slice(0, currentStep).map((event, idx) => (
+                            <div key={idx} className="bg-gradient-to-r from-green-900 to-green-800 border-2 border-green-400 p-4 rounded-lg flex items-center shadow-[0_0_15px_rgba(0,255,0,0.3)] animate-fade-in-up">
+                                <span className="font-black text-yellow-400 mr-2 text-xl">{event.year}:</span>
+                                <span className="font-bold text-white">{event.text}</span>
+                                {idx < currentStep - 1 && <i className="fas fa-arrow-right ml-4 text-green-300"></i>}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
+        const Games = () => {
+            const [mode, setMode] = useState('menu'); 
+            const [currentQ, setCurrentQ] = useState(0);
+            const [score, setScore] = useState(0);
+            const [showResult, setShowResult] = useState(false);
+            const [feedback, setFeedback] = useState(null); 
+
+            const handleAnswer = (optionIdx) => {
+                const isCorrect = optionIdx === quizData[currentQ].answer;
+                playSound(isCorrect ? 'correct' : 'wrong');
+                setFeedback(isCorrect ? 'correct' : 'wrong');
+                setTimeout(() => {
+                    if (isCorrect) setScore(score + 1);
+                    if (currentQ < quizData.length - 1) {
+                        setCurrentQ(currentQ + 1);
+                        setFeedback(null);
+                    } else {
+                        setShowResult(true);
+                        playSound('success');
+                    }
+                }, 1000);
+            };
+
+            const startQuiz = () => {
+                playSound();
+                setMode('quiz');
+                setCurrentQ(0);
+                setScore(0);
+                setShowResult(false);
+                setFeedback(null);
+            }
+
+            if (mode === 'chrono') return <ChronologyGame onBack={() => { playSound(); setMode('menu'); }} />;
+
+            if (mode === 'menu') {
+                return (
+                    <div className="flex flex-col items-center justify-center h-full gap-10 relative z-10 px-4">
+                        <h2 className="text-5xl font-black text-header-yellow uppercase mb-4 drop-shadow-lg text-center">Ойын Алаңы</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full max-w-4xl">
+                            <HoloTablet 
+                                onClick={startQuiz} 
+                                className="aspect-square flex flex-col items-center justify-center hover:shadow-[0_0_40px_rgba(0,210,255,0.6)] cursor-pointer group"
+                            >
+                                <div className="p-6 rounded-full bg-cyan-900/30 mb-6 group-hover:scale-110 transition-transform">
+                                    <i className="fas fa-question-circle text-7xl md:text-8xl text-cyan-400"></i>
+                                </div>
+                                <span className="text-2xl md:text-3xl font-black text-white uppercase tracking-wider">Викторина</span>
+                                <span className="text-sm md:text-base text-cyan-200 mt-3 font-bold bg-black/50 px-3 py-1 rounded">Білім сынағы</span>
+                            </HoloTablet>
+
+                            <HoloTablet 
+                                onClick={() => { playSound(); setMode('chrono'); }} 
+                                className="aspect-square flex flex-col items-center justify-center hover:shadow-[0_0_40px_rgba(255,215,0,0.6)] cursor-pointer group"
+                            >
+                                <div className="p-6 rounded-full bg-yellow-900/30 mb-6 group-hover:scale-110 transition-transform">
+                                    <i className="fas fa-hourglass-half text-7xl md:text-8xl text-yellow-400"></i>
+                                </div>
+                                <span className="text-2xl md:text-3xl font-black text-white uppercase tracking-wider">Хронология</span>
+                                <span className="text-sm md:text-base text-yellow-200 mt-3 font-bold bg-black/50 px-3 py-1 rounded">Уақыт саяхаты</span>
+                            </HoloTablet>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (showResult) {
+                return (
+                    <div className="flex flex-col items-center justify-center h-full relative z-10 px-4">
+                        <HoloTablet className="p-12 text-center border-2 border-yellow-400 max-w-2xl bg-black/80 w-full">
+                            <h2 className="text-5xl font-black text-header-yellow mb-6">Нәтиже</h2>
+                            <p className="text-3xl mb-8 text-white font-bold">Сіз {quizData.length} сұрақтың {score}-іне дұрыс жауап бердіңіз!</p>
+                            <div className="text-8xl mb-10 animate-bounce drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+                                {score === quizData.length ? '🏆' : score > quizData.length/2 ? '👏' : '📚'}
+                            </div>
+                            <button onClick={() => { playSound(); setMode('menu'); }} className="px-10 py-4 bg-blue-600 rounded-xl hover:bg-blue-500 text-white font-bold text-xl uppercase shadow-lg transition-transform hover:-translate-y-1">Мәзірге оралу</button>
+                        </HoloTablet>
+                    </div>
+                );
+            }
+
+            const q = quizData[currentQ];
+
+            return (
+                <div className="flex flex-col items-center justify-center h-full px-4 relative z-10">
+                    <div className="w-full max-w-3xl flex justify-between mb-6">
+                        <button onClick={() => { playSound(); setMode('menu'); }} className="text-white font-bold bg-red-900/80 px-6 py-2 rounded-lg hover:bg-red-700 border border-red-500 transition-colors">Шығу</button>
+                        <span className="text-header-yellow font-black text-2xl bg-black/50 px-4 py-1 rounded-lg border border-yellow-500/50">{currentQ + 1} / {quizData.length}</span>
+                    </div>
+                    
+                    <HoloTablet className={`p-8 md:p-12 max-w-3xl w-full transition-all duration-300 ${feedback === 'correct' ? 'border-green-500 bg-green-900/30' : feedback === 'wrong' ? 'border-red-500 bg-red-900/30' : ''}`}>
+                        <h3 className="text-2xl md:text-3xl font-bold mb-10 text-center min-h-[80px] text-white drop-shadow-md leading-relaxed">{q.question}</h3>
+                        
+                        <div className="grid gap-4">
+                            {q.options.map((opt, idx) => (
+                                <button 
+                                    key={idx}
+                                    onClick={() => !feedback && handleAnswer(idx)}
+                                    className={`p-6 rounded-xl border-2 font-bold text-lg text-left flex items-center transition-all group
+                                        ${feedback && idx === q.answer ? 'bg-green-600 border-green-400 text-white shadow-[0_0_20px_#00ff00]' : 'border-blue-500/30 bg-black/40 text-white hover:bg-blue-900/60 hover:border-cyan-400'}
+                                        ${feedback === 'wrong' && idx !== q.answer ? 'opacity-50' : ''}
+                                    `}
+                                >
+                                    <span className="bg-blue-900 w-12 h-12 flex items-center justify-center rounded-full mr-5 text-yellow-400 font-black border border-blue-500 group-hover:scale-110 transition-transform">{String.fromCharCode(65 + idx)}</span>
+                                    {opt}
+                                </button>
+                            ))}
+                        </div>
+                    </HoloTablet>
+                </div>
+            );
+        };
+
+        const EssayTask = () => {
+            const [text, setText] = useState("");
+            const [saved, setSaved] = useState(false);
+
+            const handleSave = () => {
+                if(!text.trim()) return;
+                playSound('success'); 
+                setSaved(true);
+            };
+
+            return (
+                <div className="flex flex-col items-center justify-center h-full px-4 text-center relative z-10 max-w-5xl mx-auto">
+                    <h2 className="text-4xl text-header-yellow font-black mb-8 uppercase tracking-widest drop-shadow-lg bg-black/40 px-8 py-3 rounded-2xl border border-yellow-500/30">Ой Толғау</h2>
+                    
+                    {!saved ? (
+                        <HoloTablet className="p-10 max-w-4xl w-full flex flex-col items-center">
+                            <i className="fas fa-pen-fancy text-6xl text-cyan-400 mb-6"></i>
+                            <h3 className="text-2xl font-bold text-white mb-6">«Тәуелсіздік – менің тұғырым» тақырыбында өз ойыңызды жазыңыз</h3>
+                            <textarea 
+                                className="w-full h-40 bg-black/50 border-2 border-cyan-500/50 rounded-xl p-4 text-white text-lg focus:outline-none focus:border-yellow-400 focus:shadow-[0_0_15px_#ffd700] transition-all resize-none mb-6"
+                                placeholder="Ойыңызды осы жерге жазыңыз..."
+                                value={text}
+                                onChange={(e) => setText(e.target.value)}
+                            ></textarea>
+                            <button 
+                                onClick={handleSave}
+                                disabled={!text.trim()}
+                                className="px-12 py-4 bg-green-600 rounded-xl hover:bg-green-500 disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-black text-xl uppercase shadow-lg transition-transform hover:-translate-y-1 flex items-center gap-3"
+                            >
+                                <i className="fas fa-save"></i> Сақтау
+                            </button>
+                        </HoloTablet>
+                    ) : (
+                        <HoloTablet className="p-12 border-2 border-green-500 bg-black/80 max-w-2xl">
+                            <div className="text-9xl mb-6 text-green-500 animate-bounce">
+                                <i className="fas fa-check-circle"></i>
+                            </div>
+                            <h2 className="text-5xl font-black text-white mb-4">САҚТАЛДЫ!</h2>
+                            <p className="text-2xl text-gray-200 font-bold mb-8">Сіздің пікіріңіз тарих қойнауына енгізілді.</p>
+                            <div className="mt-4 px-10 py-4 border-2 border-yellow-500 rounded-xl bg-yellow-500/20 inline-block">
+                                <span className="font-mono text-2xl text-yellow-400 font-black tracking-wider uppercase">Сабақ Аяқталды</span>
+                            </div>
+                        </HoloTablet>
+                    )}
+                </div>
+            );
+        };
+
+        const Oath = ({ onNext }) => {
+            const [scanning, setScanning] = useState(false);
+            const [accepted, setAccepted] = useState(false);
+            const timerRef = useRef(null);
+
+            const startScan = () => {
+                if (accepted) return;
+                playSound('scan');
+                setScanning(true);
+                timerRef.current = setTimeout(() => {
+                    setAccepted(true);
+                    setScanning(false);
+                    playSound('success'); 
+                }, 3000); 
+            };
+
+            const stopScan = () => {
+                if (accepted) return;
+                setScanning(false);
+                if (timerRef.current) clearTimeout(timerRef.current);
+            };
+
+            return (
+                <div className="flex flex-col items-center justify-center h-full px-4 text-center relative z-10 max-w-5xl mx-auto">
+                    {!accepted ? (
+                        <>
+                            <h2 className="text-4xl text-header-yellow font-black mb-8 uppercase tracking-widest drop-shadow-lg bg-black/40 px-8 py-3 rounded-2xl border border-yellow-500/30">Тәуелсіздік Серті</h2>
+                            <HoloTablet className="p-10 mb-12 bg-black/60">
+                                {scanning && <div className="scanner-line"></div>}
+                                <p className="text-xl md:text-3xl leading-relaxed font-serif italic text-white font-bold drop-shadow-md">
+                                    "Мен, Қазақстан Республикасының жас ұрпағы, ата-бабам аңсаған Тәуелсіздікті көздің қарашығындай сақтауға, елімнің өркендеуіне аянбай еңбек етуге, білімді әрі адал азамат болуға 
+                                    <br/><span className="text-yellow-400 font-black text-4xl mt-6 block uppercase animate-pulse" style={{textShadow: '0 0 20px #ffd700'}}>СЕРТ БЕРЕМІН!</span>"
+                                </p>
+                            </HoloTablet>
+                            
+                            <div className="relative">
+                                <button 
+                                    onMouseDown={startScan} 
+                                    onMouseUp={stopScan} 
+                                    onTouchStart={startScan}
+                                    onTouchEnd={stopScan}
+                                    className="w-32 h-32 rounded-full border-4 border-cyan-500 bg-gray-900 flex items-center justify-center active:scale-95 transition-transform select-none shadow-[0_0_40px_rgba(0,210,255,0.4)] hover:shadow-[0_0_60px_#00ff00]"
+                                >
+                                    <i className={`fas fa-fingerprint text-7xl ${scanning ? 'text-green-400 animate-pulse' : 'text-cyan-400'}`}></i>
+                                </button>
+                                <p className="mt-6 text-lg text-white font-bold animate-pulse bg-black/60 px-6 py-2 rounded-full border border-white/20">
+                                    {scanning ? "СКАНЕРЛЕУ..." : "Сертті қабылдау үшін басып тұрыңыз"}
+                                </p>
+                            </div>
+                        </>
+                    ) : (
+                        <HoloTablet className="bg-black/70 p-12 border-2 border-green-500 shadow-[0_0_100px_rgba(0,255,0,0.3)] max-w-2xl">
+                            <div className="text-9xl mb-8 text-green-500 drop-shadow-[0_0_20px_rgba(0,255,0,0.8)] animate-bounce-slow">
+                                <i className="fas fa-check-circle"></i>
+                            </div>
+                            <h2 className="text-6xl font-black text-white mb-6">ҚАБЫЛДАНДЫ!</h2>
+                            <p className="text-2xl text-gray-200 font-bold mb-8">Сіз Тәуелсіз елдің Адал Азаматысыз!</p>
+                            <button 
+                                onClick={onNext}
+                                className="mt-4 px-10 py-4 bg-yellow-500 rounded-xl hover:bg-yellow-400 text-black font-black text-xl uppercase shadow-lg transition-transform hover:-translate-y-1"
+                            >
+                                Сабақты Қорытындылау <i className="fas fa-arrow-right ml-2"></i>
+                            </button>
+                        </HoloTablet>
+                    )}
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [locked, setLocked] = useState(true);
+            const [currentSlide, setCurrentSlide] = useState(0);
+
+            const slides = [
+                { id: 'intro', component: <IntroSlide onNext={() => setCurrentSlide(1)} /> },
+                { id: 'timeline', component: <Timeline /> },
+                { id: 'values', component: <ValuesGrid /> },
+                { id: 'games', component: <Games /> },
+                { id: 'oath', component: <Oath onNext={() => setCurrentSlide(5)} /> },
+                { id: 'essay', component: <EssayTask /> }
+            ];
+
+            const navItems = [
+                { icon: 'fa-home', label: 'Басты' },
+                { icon: 'fa-history', label: 'Тарих' },
+                { icon: 'fa-heart', label: 'Құндылық' },
+                { icon: 'fa-gamepad', label: 'Тапсырма' },
+                { icon: 'fa-file-signature', label: 'Серт' },
+                { icon: 'fa-pen-nib', label: 'Ой толғау' }
+            ];
+
+            if (locked) {
+                return <LockScreen onUnlock={() => setLocked(false)} />;
+            }
+
+            return (
+                <div className="relative h-screen flex flex-col overflow-hidden bg-gradient-to-b from-[#020617] to-[#0f172a]">
+                    <KazakhstanMap />
+                    
+                    {/* Header */}
+                    <header className="flex justify-between items-center p-4 md:px-8 z-30 bg-black/80 backdrop-blur-md border-b border-white/10 shadow-lg">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-900 rounded-xl flex items-center justify-center font-black text-2xl shadow-[0_0_20px_#0066ff] border border-blue-400">Q</div>
+                            <div className="flex flex-col">
+                                <span className="text-xs text-cyan-400 tracking-[0.2em] uppercase font-bold">Qazaqstan TV</span>
+                                <span className="text-sm font-black text-white uppercase tracking-wider">Арнайы шығарылым</span>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3 bg-red-900/20 px-4 py-1.5 rounded-full border border-red-500/40">
+                            <div className="w-3 h-3 bg-red-600 rounded-full animate-ping"></div>
+                            <span className="text-xs font-mono text-red-400 uppercase font-bold tracking-widest">LIVE</span>
+                        </div>
+                    </header>
+
+                    {/* Main Content Area */}
+                    <main className="flex-1 relative z-10 overflow-hidden">
+                        {slides[currentSlide].component}
+                    </main>
+
+                    {/* Navigation Buttons */}
+                    <div className="absolute right-6 top-1/2 transform -translate-y-1/2 z-30 hidden md:flex flex-col gap-4">
+                        {navItems.map((item, idx) => (
+                            <button 
+                                key={idx}
+                                onClick={() => { playSound(); setCurrentSlide(idx); }}
+                                className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center transition-all duration-300 hover:scale-110 hover:shadow-[0_0_25px_#00d2ff] ${currentSlide === idx ? 'bg-blue-600 border-yellow-400 text-white shadow-[0_0_30px_rgba(0,100,255,0.8)] scale-110' : 'bg-black/60 border-cyan-500/30 text-cyan-400 hover:bg-blue-900 hover:text-white hover:border-cyan-400'}`}
+                                title={item.label}
+                            >
+                                <i className={`fas ${item.icon} text-lg`}></i>
+                            </button>
+                        ))}
+                    </div>
+                    
+                    {/* Mobile Nav */}
+                     <div className="md:hidden flex justify-around p-4 bg-black/95 z-30 pb-16 border-t border-white/20 backdrop-blur-md"> 
+                        {navItems.map((item, idx) => (
+                            <button 
+                                key={idx}
+                                onClick={() => { playSound(); setCurrentSlide(idx); }}
+                                className={`p-2 transition-colors ${currentSlide === idx ? 'text-yellow-400 scale-125' : 'text-gray-500'}`}
+                            >
+                                <i className={`fas ${item.icon} text-xl`}></i>
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* News Ticker Footer */}
+                    <div className="news-ticker-container">
+                        <div className="news-ticker-text">
+                            *** <span>ТӘУЕЛСІЗДІК – ЕЛ БАҚЫТЫ</span> *** БҮГІН ҚАЗАҚСТАН ХАЛҚЫ ЕҢ ҰЛЫ МЕРЕКЕНІ ТОЙЛАУДА *** ЕЛІМІЗДІҢ ТЫНЫШТЫҒЫ МЕН ТҰТАСТЫҒЫ — БАСТЫ БАЙЛЫҒЫМЫЗ *** БОЛАШАҚ ЖАСТАРДЫҢ ҚОЛЫНДА *** АДАЛ ЕҢБЕК — АДАЛ АЗАМАТ *** <span>КӨК ТУЫМЫЗ КӨК АСПАНДА ЖЕЛБІРЕСІН</span> *** МӘҢГІЛІК ЕЛ БОЛУ – БАСТЫ МҰРАТ *** ЕРКІНДІК – ЕҢ ҚЫМБАТ ҚАЗЫНА ***
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
